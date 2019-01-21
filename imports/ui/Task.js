@@ -17,18 +17,22 @@ export default class Task extends Component {
     deleteThisTask() {
         Meteor.call('tasks.remove', this.props.task._id);
     }
-    /*archiveThisTaslk(){
-
-    }*/
+    archiveThisTask(){
+        Meteor.call('tasks.setArchived', this.props.task._id, !this.props.task.archived)
+    }
 
     render() {
         const taskClassName = classnames({
             checked: this.props.task.checked,
             private: this.props.task.private,
+            archived: this.props.task.archived,
         });        return (
             <li className={taskClassName}>
                 <button className="delete" onClick={this.deleteThisTask.bind(this)}>
                     delete
+                </button>
+                <button className="delete" onClick={this.archiveThisTask.bind(this)}>
+                    {this.props.task.archived ? 'unarchive' : 'archive' }
                 </button>
 
                 <input
@@ -41,8 +45,9 @@ export default class Task extends Component {
                     <button className="toggle-private" onClick={this.togglePrivate.bind(this)}>
                         { this.props.task.private ? 'private' : 'public' }
                     </button>)
-                    : ''
+                : ''
                 }
+
                 <span className="text">
                     <strong>{this.props.task.username}</strong>: {this.props.task.text}
                 </span>
