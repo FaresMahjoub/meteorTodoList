@@ -9,7 +9,7 @@ if (Meteor.isServer) {
     // This code only runs on the server
     Meteor.publish('tasks', function tasksPublication() {
         return Tasks.find({ $or : [
-                {owner: this.userId,} , {private: false}
+                {owner: this.userId,} , {$and : [ {private: false}, {archived: false} ]}
             ]
        });
     });
@@ -61,5 +61,19 @@ Meteor.methods({
         }
 
         Tasks.update(taskId, { $set: { private: setToPrivate } });
+    },
+
+    'tasks.setArchived'(taskId, setToArchived) {
+        check(taskId, String);
+        check(setToArchived, Boolean);
+
+        const task = Tasks.findOne(taskId);
+
+        // Make sure only the task owner can make a task private
+        if (task.owner !== this.userId) {
+            throw new Meteor.Error('not-authorized');
+        }
+
+        Tasks.update(taskId, { $set: { archived: setToArchived } });
     },
 });
